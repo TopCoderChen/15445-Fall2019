@@ -13,9 +13,9 @@
 #pragma once
 
 #include <list>
-#include <mutex>  // NOLINT
-#include <vector>
+#include <mutex>         // NOLINT
 #include <shared_mutex>  // NOLINT
+#include <vector>
 
 #include "buffer/replacer.h"
 #include "common/config.h"
@@ -52,13 +52,13 @@ class ClockReplacer : public Replacer {
 
   // <exist, pin>
   std::vector<std::pair<bool, bool>> clock;
-  size_t hand = 0; // clock hand index
-  
+  size_t hand = 0;  // clock hand index
+
   static constexpr bool NOT_EXISTS = false;
   static constexpr bool EXISTS = true;
   static constexpr bool NO_REF = false;
   static constexpr bool REF = true;
-  
+
   mutable std::shared_mutex latch;
 };
 
