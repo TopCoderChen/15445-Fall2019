@@ -15,6 +15,7 @@
 #include <list>
 #include <mutex>  // NOLINT
 #include <vector>
+#include <shared_mutex>  // NOLINT
 
 #include "buffer/replacer.h"
 #include "common/config.h"
@@ -46,7 +47,19 @@ class ClockReplacer : public Replacer {
   size_t Size() override;
 
  private:
-  // TODO(student): implement me!
+  // actual size of clock
+  size_t size = 0;
+
+  // <exist, pin>
+  std::vector<std::pair<bool, bool>> clock;
+  size_t hand = 0; // clock hand index
+  
+  static constexpr bool NOT_EXISTS = false;
+  static constexpr bool EXISTS = true;
+  static constexpr bool NO_REF = false;
+  static constexpr bool REF = true;
+  
+  mutable std::shared_mutex latch;
 };
 
 }  // namespace bustub
