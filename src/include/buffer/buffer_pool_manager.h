@@ -152,6 +152,9 @@ class BufferPoolManager {
    */
   void FlushAllPagesImpl();
 
+  // (For Fetch or New) Update relevant metadata and page_table.
+  Page *ReplaceAndUpdate(page_id_t new_page_id, bool new_page, std::unique_lock<std::shared_mutex> *u_lock);
+
   /** Number of pages in the buffer pool. */
   size_t pool_size_;
   /** Array of buffer pool pages. */
@@ -167,6 +170,6 @@ class BufferPoolManager {
   /** List of free pages. */
   std::list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
-  std::mutex latch_;
+  std::shared_mutex latch_;
 };
 }  // namespace bustub
