@@ -22,6 +22,11 @@
 
 namespace bustub {
 
+// Each Hash Table Header/Block page corresponds to the content (i.e., the byte array data_) of a memory page fetched by
+// buffer pool. Every time you try to read or write a page, you need to first fetch the page from buffer pool using its
+// unique page_id, then reinterpret cast to either a header or a block page, and unpin the page after any writing or
+// reading operations.
+
 /**
  *
  * Header Page for linear probing hash table.
@@ -31,6 +36,8 @@ namespace bustub {
  * | LSN (4) | Size (4) | PageId(4) | NextBlockIndex(4)
  * -------------------------------------------------------------
  */
+
+// HashTableHeaderPage is just a page BufferPoolManager can control.
 class HashTableHeaderPage {
  public:
   /**

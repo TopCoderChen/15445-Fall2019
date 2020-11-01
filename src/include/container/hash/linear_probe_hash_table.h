@@ -15,6 +15,7 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "buffer/buffer_pool_manager.h"
 #include "concurrency/transaction.h"
@@ -24,6 +25,8 @@
 #include "storage/page/hash_table_header_page.h"
 #include "storage/page/hash_table_page_defs.h"
 
+// Note that each page can store multiple (BLOCK_ARRAY_SIZE) blocks, so the hash table needs to find both the
+// target page & target slot/block inside the target page, in order to retrieve/add/update the KV pair.
 namespace bustub {
 
 #define HASH_TABLE_TYPE LinearProbeHashTable<KeyType, ValueType, KeyComparator>
@@ -49,6 +52,7 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
 
   /**
    * Inserts a key-value pair into the hash table.
+   * When hash table is full, throws the exception `hash_table_full_error`.
    * @param transaction the current transaction
    * @param key the key to create
    * @param value the value to be associated with the key
@@ -87,16 +91,38 @@ class LinearProbeHashTable : public HashTable<KeyType, ValueType, KeyComparator>
   size_t GetSize();
 
  private:
-  // member variable
+  static constexpr slot_offset_t BLOCK_ARRAY_SIZE_PRO_PAGE{BLOCK_ARRAY_SIZE};
+
   page_id_t header_page_id_;
+  size_t page_number;
+  slot_offset_t BLOCK_ARRAY_SIZE_LAST_PAGE;
+  size_t size_cache;
+  std::vector<page_id_t> page_ids_cache;
   BufferPoolManager *buffer_pool_manager_;
   KeyComparator comparator_;
-
-  // Readers includes inserts and removes, writer is only resize
-  ReaderWriterLatch table_latch_;
-
-  // Hash function
+  /** Readers includes inserts and removes, writer is only resize */
+  mutable ReaderWriterLatch table_latch_;
+  /** Hash function */
   HashFunction<KeyType> hash_fn_;
+
+  bool Insert_Helper(Transaction *transaction, const KeyType &key, const ValueType &value);
+
+
+  std::pair<size_t, slot_offset_t> GetPagePosition(size_t hash_position) const {
+    const size_t page_index = hash_position / BLOCK_ARRAY_SIZE_PRO_PAGE;
+    const slot_offset_t slot_offset
+        = hash_position % BLOCK_ARRAY_SIZE_PRO_PAGE;  // hash_position % buckets_pro_page
+    return {page_index, slot_offset};
+  }
 };
+
+class hash_table_full_error
+    : public std::exception {
+ public:
+  const char* what() const noexcept override {
+    return "Infinite Loop: hash table is full with no empty space for insertion";
+  }
+};
+
 
 }  // namespace bustub

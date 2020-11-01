@@ -21,6 +21,12 @@
 #include "storage/page/hash_table_page_defs.h"
 
 namespace bustub {
+
+// Each Hash Table Header/Block page corresponds to the content (i.e., the byte array data_) of a memory page fetched by
+// buffer pool. Every time you try to read or write a page, you need to first fetch the page from buffer pool using its
+// unique page_id, then reinterpret cast to either a header or a block page, and unpin the page after any writing or
+// reading operations.
+
 /**
  * Store indexed key and and value together within block page. Supports
  * non-unique keys.
@@ -33,6 +39,8 @@ namespace bustub {
  *  Here '+' means concatenation.
  *
  */
+
+ // HashTableBlockPage is just a page BufferPoolManager can control, and it stores occupied_/readable/array_
 template <typename KeyType, typename ValueType, typename KeyComparator>
 class HashTableBlockPage {
  public:
@@ -100,6 +108,8 @@ class HashTableBlockPage {
 
   // 0 if tombstone/brand new (never occupied), 1 otherwise.
   std::atomic_char readable_[(BLOCK_ARRAY_SIZE - 1) / 8 + 1];
+
+  // This array_ is stored in this page.
   MappingType array_[0];  // std::pair<KeyType, ValueType>
 };
 
