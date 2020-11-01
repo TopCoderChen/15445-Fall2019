@@ -94,6 +94,7 @@ class HashTableHeaderPage {
   __attribute__((unused)) size_t size_;
   __attribute__((unused)) page_id_t page_id_;
   __attribute__((unused)) size_t next_ind_;
+  // The block_page_ids_ array maps block ids to page_id_t
   __attribute__((unused)) page_id_t block_page_ids_[0];
 };
 
